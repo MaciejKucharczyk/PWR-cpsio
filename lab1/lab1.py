@@ -99,7 +99,7 @@ def cw3(): # odwrotna transformata fouriera
 
 
 
-def cw4():
+def cw4_old():
     freq = 360
     filename = "ekg_noise.txt"
     
@@ -112,7 +112,7 @@ def cw4():
     plt.title('Sygnal przed filtracja')
     plt.show()
 
-    b, a = signal.cheby2(4, 5, 0.01, 'low', analog=False)
+    b, a = signal.cheby1(1, 60, 0.01, 'low', analog=False)
     w, h = signal.freqs(b, a)
     plt.semilogx(w, 20 * np.log10(abs(h)))
     plt.xlabel('Częstotliwość (Hz)')
@@ -128,6 +128,48 @@ def cw4():
     plt.show()
 
 
+def cw4():
+    freq = 360 # czestotliwosc probkowania
+    filename = "ekg_noise.txt"
+    
+    sig = np.loadtxt(filename, usecols=1)
+    time = np.loadtxt(filename, usecols=0)
+    
+    order = 1
+    cutoff_frequency = 60
+    ripple = 10
+    
+    normalized_cutoff = cutoff_frequency / (0.5 * freq)  # Normalizacja częstotliwości granicznej
+    
+    b, a = signal.cheby1(order, ripple, normalized_cutoff, 'low', analog=False)
+    w, h = signal.freqz(b, a)
+    
+    plt.plot(time, sig)
+    plt.xlabel('Czas [s]')
+    plt.ylabel('Amplituda')
+    plt.title('Sygnal przed filtracja')
+    plt.show()
+    
+    plt.figure()
+    plt.semilogx((freq * 0.5 / np.pi) * w, 20 * np.log10(abs(h)))
+    plt.xlabel('Częstotliwość (Hz)')
+    plt.ylabel('Amplituda (dB)')
+    plt.title('Odpowiedź filtru')
+    plt.grid()
+    plt.show()
+
+    filtered_sig = signal.filtfilt(b, a, sig)  # Przykładowy sygnał 'sig'
+    plt.figure()
+    plt.plot(time, filtered_sig)
+    plt.xlabel('Czas [s]')
+    plt.ylabel('Amplituda')
+    plt.title('Sygnał po filtracji')
+    plt.grid()
+    plt.show()
+
+    
+    
+""" 
 cw1('ekg1.txt', 1000)
 cw1('ekg100.txt', 360)
 cw1('ekg_noise.txt', 360)
@@ -135,6 +177,6 @@ cw1('ekg_noise.txt', 360)
 cw2(50)
 cw2(60)
 
-cw3()
+cw3() """
 
 cw4()
